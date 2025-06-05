@@ -35,17 +35,7 @@ namespace UPV.CLI.Connectors
             _commandBuilder.Append($" -{key} {PowerShellHelper.EscapeString(value, isLiteral)}");
         }
 
-        public void AddXmlParameter(string key, string value)
-        {
-            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Key and value cannot be null or empty.");
-            }
-
-            ValidateCommand();
-
-            _commandBuilder.Append($" -{key} ({PowerShellHelper.ParseAsBase64String(value)})");
-        }
+        public void AddXmlParameter(string key, string value) => AddParameter(key, value, isLiteral: true);
 
         public void AddParameter(string key, bool value)
         {

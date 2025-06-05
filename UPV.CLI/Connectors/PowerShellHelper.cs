@@ -31,8 +31,9 @@ namespace UPV.CLI.Connectors
                         StartInfo = new ProcessStartInfo
                         {
                             FileName = psPath,
-                            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
+                            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command -",
                             UseShellExecute = false,
+                            RedirectStandardInput = true,
                             RedirectStandardOutput = true,
                             RedirectStandardError = true,
                             CreateNoWindow = true
@@ -40,6 +41,17 @@ namespace UPV.CLI.Connectors
                     };
 
                     process.Start();
+
+                    // Write the script to the PowerShell process
+                    await process.StandardInput.WriteAsync(script);
+
+                    // Ensure the script ends the last line and then adds a second newline (like pressing Enter twice)
+                    // to execute it properly (this is REQUIRED, without this it doesn't work)
+                    await process.StandardInput.WriteLineAsync();
+                    await process.StandardInput.WriteLineAsync();
+
+                    await process.StandardInput.FlushAsync();
+                    process.StandardInput.Close(); // Close the input stream to signal end of script
 
                     string output = await process.StandardOutput.ReadToEndAsync();
                     string error = await process.StandardError.ReadToEndAsync();
@@ -57,13 +69,6 @@ namespace UPV.CLI.Connectors
             return (false, "", "No PowerShell installation found");
         }
 
-        public static string ParseAsBase64String(string input)
-        {
-            // Special handling for XML parameters - use base64 encoding
-            var encodedInput = Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
-            return $"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('{encodedInput}'))";
-        }
-
         public static string EscapeString(string input, bool isLiteral = false)
         {
             if (string.IsNullOrEmpty(input))
@@ -71,7 +76,7 @@ namespace UPV.CLI.Connectors
 
             if (isLiteral)
             {
-                return $"@'\n{input}\n'@"; // Here-string syntax (literal string)
+                return $"@'{Environment.NewLine}{input}{Environment.NewLine}'@"; // Here-string syntax (literal string)
             }
             else
             {
