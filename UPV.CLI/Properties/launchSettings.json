@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "UPV.CLI": {
+      "commandName": "Project"
+    },
+    "Create VPN": {
+      "commandName": "Project",
+      "commandLineArgs": "vpn create Test"
+    }
+  }
+}
