@@ -25,9 +25,9 @@ namespace UPV.CLI
         }
 
         [Command("delete")]
-        public void Delete([Argument] string name)
+        public void Delete([Argument] string name, [Option] bool force = false)
         {
-            if (!CommandsHelper.GetYesNoConfirmation($"Are you sure you want to delete the VPN connection '{name}'? This action cannot be undone."))
+            if (!(force || CommandsHelper.GetYesNoConfirmation($"Are you sure you want to delete the VPN connection '{name}'? This action cannot be undone.")))
             {
                 Console.WriteLine("Deletion cancelled.");
                 return;
