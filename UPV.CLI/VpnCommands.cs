@@ -2,6 +2,8 @@
 using UPV.CLI.Connectors;
 using UPV.CLI.Connectors.VPN;
 
+namespace UPV.CLI
+{
 // VPN Commands
 public class VpnCommands
 {
@@ -80,4 +82,5 @@ public class VpnCommands
             Console.WriteLine($"- {vpnName}");
         }
     }
+}
 }

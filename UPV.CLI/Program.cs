@@ -1,4 +1,5 @@
 ﻿using Cocona;
+using UPV.CLI;
 
 // Main program
 var app = CoconaLiteApp.Create();
