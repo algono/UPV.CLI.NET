@@ -136,6 +136,11 @@ namespace UPV.CLI.Connectors.Drive
 
         public void OnProcessConnected(ProcessEventArgs e)
         {
+            if (e.Succeeded)
+            {
+                IsConnected = true;
+            }
+
             if (letterWasAutoAssigned)
             {
                 letter = default;
@@ -172,6 +177,11 @@ namespace UPV.CLI.Connectors.Drive
 
         public void OnProcessDisconnected(ProcessEventArgs e)
         {
+            if (e.Succeeded)
+            {
+                IsConnected = false;
+            }
+
             if (!e.Succeeded)
                 //Esa secuencia es parte de "(S/N)", con lo que deducimos que nos pide confirmación (porque tenemos archivos abiertos)
                 if (e.OutputOrErrorContains("/N)"))
