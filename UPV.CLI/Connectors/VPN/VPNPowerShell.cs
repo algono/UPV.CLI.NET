@@ -1,22 +1,24 @@
-﻿using System.Text.Json;
-using static UPV.CLI.Connectors.PowerShellHelper;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using UPV.CLI.Connectors.Helpers;
+using static UPV.CLI.Connectors.Helpers.PowerShellHelper;
 
 namespace UPV.CLI.Connectors.VPN
 {
     public static class VPNPowerShell
     {
-        public static bool Create(string name, string server, Action<PowerShellCommandBuilder>? configureCommand)
+        public static Process? Create(string name, string server, Action<PowerShellCommandBuilder>? configureCommand)
         {
             return CreateAsync(name, server, configureCommand).GetAwaiter().GetResult();
         }
 
-        public static async Task<bool> CreateAsync(string name, string server, Action<PowerShellCommandBuilder>? configureCommand)
+        public static async Task<Process?> CreateAsync(string name, string server, Action<PowerShellCommandBuilder>? configureCommand)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             if (string.IsNullOrEmpty(server)) throw new ArgumentNullException(nameof(server));
 
             var script = BuildAddVpnScript(name, server, configureCommand);
-            return await ExecutePowerShellScript(script);
+            return await StartPowerShellProcessAsync(script);
         }
 
         private static string BuildAddVpnScript(string name, string server, Action<PowerShellCommandBuilder>? configureCommand)
@@ -32,6 +34,18 @@ namespace UPV.CLI.Connectors.VPN
             return pb.Build();
         }
 
+        public static Process? Delete(string name)
+        {
+            return DeleteAsync(name).GetAwaiter().GetResult();
+        }
+
+        public static async Task<Process?> DeleteAsync(string name)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            var script = $"Remove-VpnConnection -Name {EscapeString(name)} -Force";
+            return await StartPowerShellProcessAsync(script);
+        }
+
         public static bool Any(string server) => AnyAsync(server).GetAwaiter().GetResult();
 
         public static IEnumerable<string> FindNames(string server)
@@ -44,7 +58,15 @@ namespace UPV.CLI.Connectors.VPN
         {
             var script = $"Get-VpnConnection | Where-Object {{$_.ServerAddress -eq {EscapeString(server)}}} | Select-Object -ExpandProperty Name | ConvertTo-Json";
 
-            var result = await ExecutePowerShellScriptWithOutput(script);
+            var process = await StartPowerShellProcessAsync(script);
+
+            if (process == null)
+            {
+                return [];
+            }
+
+            var result = CmdHelper.WaitAndCheck(process)?.Output ?? string.Empty;
+
             if (string.IsNullOrWhiteSpace(result))
                 return [];
 

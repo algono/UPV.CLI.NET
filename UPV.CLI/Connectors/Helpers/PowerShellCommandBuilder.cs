@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace UPV.CLI.Connectors
+namespace UPV.CLI.Connectors.Helpers
 {
     public class PowerShellCommandBuilder
     {

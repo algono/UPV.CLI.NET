@@ -3,6 +3,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Xml;
+using UPV.CLI.Connectors.Helpers;
 
 namespace UPV.CLI.Connectors.VPN
 {
@@ -31,10 +32,16 @@ namespace UPV.CLI.Connectors.VPN
         private static ProcessStartInfo GetConnectionInfo(string arguments = "") => CmdHelper.CreateProcessInfo("rasphone.exe", arguments);
         private static ProcessStartInfo GetDisconnectionInfo(string arguments = "") => CmdHelper.CreateProcessInfo("rasdial.exe", arguments);
 
-        public static bool Create(string name)
+        public static Process? Create(string name)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             return VPNPowerShell.Create(name, UPVVpnServer, AddUPVCreationParameters);
+        }
+
+        public static Process? Delete(string name)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            return VPNPowerShell.Delete(name);
         }
 
         public static Process? Connect(string name)

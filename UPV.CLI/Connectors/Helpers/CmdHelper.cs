@@ -2,7 +2,7 @@
 
 namespace UPV.CLI.Connectors
 {
-    public static class CmdHelper
+    public static partial class CmdHelper
     {
         public static ProcessStartInfo CreateProcessInfo(string fileName, string arguments = "")
         {
@@ -36,20 +36,23 @@ namespace UPV.CLI.Connectors
             return new ProcessEventArgs(succeeded, output, error);
         }
 
-        public class ProcessEventArgs : EventArgs
+        public static void WaitCheckAndOutput(Process? process, string successFormat, string errorFormat, string nullMessage)
         {
-            public bool Succeeded { get; }
-            public string Output { get; }
-            public string Error { get; }
-
-            public ProcessEventArgs(bool succeeded, string output, string error)
+            if (process == null)
             {
-                Succeeded = succeeded;
-                Output = output;
-                Error = error;
+                Console.WriteLine(nullMessage);
+                return;
             }
 
-            public bool OutputOrErrorContains(string value) => Output.Contains(value) || Error.Contains(value);
+            var result = WaitAndCheck(process);
+            if (result.Succeeded)
+            {
+                Console.WriteLine(string.Format(successFormat, result.Output));
+            }
+            else
+            {
+                Console.Error.WriteLine(string.Format(errorFormat, result.Error));
+            }
         }
     }
 }

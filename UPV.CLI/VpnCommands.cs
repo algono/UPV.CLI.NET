@@ -4,83 +4,76 @@ using UPV.CLI.Connectors.VPN;
 
 namespace UPV.CLI
 {
-// VPN Commands
-public class VpnCommands
-{
-    [Command("create")]
-    public void Create([Argument] string name)
+    // VPN Commands
+    public class VpnCommands
     {
-        Console.WriteLine($"Adding VPN connection: {name}");
-        VPNHelper.Create(name);
-    }
-
-    [Command("connect")]
-    public void Connect([Argument] string name)
-    {
-        Console.WriteLine($"Connecting to VPN: {name}");
-
-        var process = VPNHelper.Connect(name);
-
-        if (process != null)
+        [Command("create")]
+        public void Create([Argument] string name)
         {
-            var result = CmdHelper.WaitAndCheck(process);
-            if (result.Succeeded)
+            Console.WriteLine($"Adding VPN connection: {name}");
+            var process = VPNHelper.Create(name);
+
+            CmdHelper.WaitCheckAndOutput(process,
+                $"Successfully added VPN connection: {name}",
+                $"Failed to add VPN connection: {name}\nError: {{0}}",
+                $"Failed to start creation process for VPN connection: {name}");
+        }
+
+        [Command("delete")]
+        public void Delete([Argument] string name)
+        {
+            Console.WriteLine($"Deleting VPN connection: {name}");
+            var process = VPNHelper.Delete(name);
+            
+            CmdHelper.WaitCheckAndOutput(process,
+                $"Successfully deleted VPN connection: {name}",
+                $"Failed to delete VPN connection: {name}\nError: {{0}}",
+                $"Failed to start deletion process for VPN connection: {name}");
+        }
+
+        [Command("connect")]
+        public void Connect([Argument] string name)
+        {
+            Console.WriteLine($"Connecting to VPN: {name}");
+
+            var process = VPNHelper.Connect(name);
+
+            CmdHelper.WaitCheckAndOutput(process,
+                $"Successfully connected to VPN: {name}",
+                $"Failed to connect to VPN: {name}\nError: {{0}}",
+                $"Failed to start connection process for VPN: {name}");
+        }
+
+        [Command("disconnect")]
+        public void Disconnect([Argument] string name)
+        {
+            Console.WriteLine($"Disconnecting from VPN: {name}");
+
+            var process = VPNHelper.Disconnect(name);
+
+            CmdHelper.WaitCheckAndOutput(process,
+                $"Successfully disconnected from VPN: {name}",
+                $"Failed to disconnect from VPN: {name}\nError: {{0}}",
+                $"Failed to start disconnection process for VPN: {name}");
+        }
+
+        [Command("check")]
+        public void Check()
+        {
+            //Console.WriteLine($"Checking if your IP is in the UPV network...");
+            var isConnected = VPNHelper.IsConnected();
+            string isInUPVNetwork = isConnected ? "Yes" : "No";
+            Console.WriteLine($"In UPV Network: {isInUPVNetwork}");
+        }
+
+        [Command("list")]
+        public void List()
+        {
+            Console.WriteLine("Available VPN connections:");
+            foreach (var vpnName in VPNHelper.List())
             {
-                Console.WriteLine($"Successfully connected to VPN: {name}");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to connect to VPN: {name}\nError: {result.Error}");
+                Console.WriteLine($"- {vpnName}");
             }
         }
-        else
-        {
-            Console.WriteLine($"Failed to start connection process for VPN: {name}");
-        }
     }
-
-    [Command("disconnect")]
-    public void Disconnect([Argument] string name)
-    {
-        Console.WriteLine($"Disconnecting from VPN: {name}");
-
-        var process = VPNHelper.Disconnect(name);
-
-        if (process != null)
-        {
-            var result = CmdHelper.WaitAndCheck(process);
-            if (result.Succeeded)
-            {
-                Console.WriteLine($"Successfully disconnected from VPN: {name}");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to disconnect from VPN: {name}\nError: {result.Error}");
-            }
-        }
-        else
-        {
-            Console.WriteLine($"Failed to start disconnection process for VPN: {name}");
-        }
-    }
-
-    [Command("check")]
-    public void Check()
-    {
-        //Console.WriteLine($"Checking if your IP is in the UPV network...");
-        var isConnected = VPNHelper.IsConnected();
-        string isInUPVNetwork = isConnected ? "Yes" : "No";
-        Console.WriteLine($"In UPV Network: {isInUPVNetwork}");
-    }
-
-    [Command("list")]
-    public void List()
-    {
-        Console.WriteLine("Available VPN connections:");
-        foreach (var vpnName in VPNHelper.List())
-        {
-            Console.WriteLine($"- {vpnName}");
-        }
-    }
-}
 }

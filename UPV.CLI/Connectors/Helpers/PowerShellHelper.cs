@@ -1,23 +1,13 @@
 ﻿using System.Diagnostics;
-using System.Text;
 
-namespace UPV.CLI.Connectors
+namespace UPV.CLI.Connectors.Helpers
 {
     public static class PowerShellHelper
     {
-        public static async Task<bool> ExecutePowerShellScript(string script)
-        {
-            var (Success, _, _) = await RunPowerShellProcess(script);
-            return Success;
-        }
-
-        public static async Task<string> ExecutePowerShellScriptWithOutput(string script)
-        {
-            var (Success, Output, _) = await RunPowerShellProcess(script);
-            return Success ? Output : string.Empty;
-        }
-
-        public static async Task<(bool Success, string Output, string Error)> RunPowerShellProcess(string script)
+        /// <summary>
+        /// Executes a PowerShell script asynchronously and returns the process (or <see langword="null"/> if no PowerShell executable was found).
+        /// </summary>
+        public static async Task<Process?> StartPowerShellProcessAsync(string script)
         {
             // Try PowerShell 7+ first, fall back to Windows PowerShell
             string[] powerShellPaths = ["pwsh.exe", "powershell.exe"];
@@ -53,11 +43,7 @@ namespace UPV.CLI.Connectors
                     await process.StandardInput.FlushAsync();
                     process.StandardInput.Close(); // Close the input stream to signal end of script
 
-                    string output = await process.StandardOutput.ReadToEndAsync();
-                    string error = await process.StandardError.ReadToEndAsync();
-                    await process.WaitForExitAsync();
-
-                    return (process.ExitCode == 0, output.Trim(), error.Trim());
+                    return process;
                 }
                 catch (System.ComponentModel.Win32Exception)
                 {
@@ -66,7 +52,8 @@ namespace UPV.CLI.Connectors
                 }
             }
 
-            return (false, "", "No PowerShell installation found");
+            Console.Error.WriteLine("Error: No PowerShell executable found. Please ensure PowerShell is installed on your system.");
+            return null; // If no PowerShell executable was found
         }
 
         public static string EscapeString(string input, bool isLiteral = false)
