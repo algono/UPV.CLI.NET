@@ -64,7 +64,9 @@ namespace UPV.CLI.Connectors.VPN
         }
 
         // Check if the VPN is working by checking if the current IP address starts with UPV's prefix
-        public static bool IsConnected() => GetConnectedIPAddresses().Any(ip => ip.StartsWith(UPVIPPrefix));
+        public static bool IsConnected() => GetConnectedIPAddresses().Any(IsIpValid);
+
+        public static bool IsIpValid(string ip) => ip.StartsWith(UPVIPPrefix);
 
         private static IEnumerable<NetworkInterface> GetConnectedNetworkInterfaces() => NetworkInterface.GetAllNetworkInterfaces().Where(ni => ni.OperationalStatus == OperationalStatus.Up);
 
@@ -74,5 +76,10 @@ namespace UPV.CLI.Connectors.VPN
                     .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
                     .Select(ip => ip.Address.ToString()))
             .SelectMany(i => i); // Flatten
+
+
+        public static IEnumerable<NetworkInterface> GetValidInterfaces() => GetConnectedNetworkInterfaces()
+            .Where(ni => ni.GetIPProperties().UnicastAddresses
+                .Any(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork && IsIpValid(ip.Address.ToString())));
     }
 }

@@ -18,6 +18,13 @@ namespace UPV.CLI.Connectors
             };
         }
 
+        public static Process StartProcess(ProcessStartInfo info)
+        {
+            Process process = Process.Start(info) ?? throw new InvalidOperationException($"Error trying to call {info.FileName}");
+            process.StandardInput.Close(); //Para que falle si pide input al usuario
+            return process;
+        }
+
         public static ProcessEventArgs WaitAndCheck(Process process)
         {
             string output = "", error = "";

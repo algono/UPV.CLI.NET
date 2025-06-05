@@ -20,8 +20,4 @@
     <PackageReference Include="Cocona.Lite" Version="2.2.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Connectors\Drive\" />
-  </ItemGroup>
-
 </Project>
