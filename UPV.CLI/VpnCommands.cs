@@ -8,15 +8,20 @@ namespace UPV.CLI
     public class VpnCommands
     {
         [Command("create")]
-        public void Create([Argument] string name)
+        public void Create([Argument] string name, [Option] bool connect = false)
         {
-            Console.WriteLine($"Adding VPN connection: {name}");
+            Console.WriteLine($"Creating VPN connection: {name}");
             var process = VPNHelper.Create(name);
 
-            CmdHelper.WaitCheckAndOutput(process,
-                $"Successfully added VPN connection: {name}",
+            var success = CmdHelper.WaitCheckAndOutput(process,
+                $"Successfully created VPN connection: {name}",
                 $"Failed to add VPN connection: {name}\nError: {{0}}",
                 $"Failed to start creation process for VPN connection: {name}");
+
+            if (success && connect)
+            {
+                Connect(name); // Automatically connect after creation (if the connect option is specified)
+            }
         }
 
         [Command("delete")]

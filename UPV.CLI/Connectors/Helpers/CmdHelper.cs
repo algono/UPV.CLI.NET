@@ -36,22 +36,24 @@ namespace UPV.CLI.Connectors
             return new ProcessEventArgs(succeeded, output, error);
         }
 
-        public static void WaitCheckAndOutput(Process? process, string successFormat, string errorFormat, string nullMessage)
+        public static bool WaitCheckAndOutput(Process? process, string successFormat, string errorFormat, string nullMessage)
         {
             if (process == null)
             {
                 Console.WriteLine(nullMessage);
-                return;
+                return false;
             }
 
             var result = WaitAndCheck(process);
             if (result.Succeeded)
             {
                 Console.WriteLine(string.Format(successFormat, result.Output));
+                return true;
             }
             else
             {
                 Console.Error.WriteLine(string.Format(errorFormat, result.Error));
+                return false;
             }
         }
     }
