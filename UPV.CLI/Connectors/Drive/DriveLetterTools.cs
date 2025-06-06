@@ -30,11 +30,17 @@ namespace UPV.CLI.Connectors.Drive
         /// <exception cref="ArgumentOutOfRangeException">If any of the prioritized letters is not valid.</exception>
         public static char? GetFirstAvailable(params char[] prioritize)
         {
-            char? prioritizedLetter = prioritize.FirstOrDefault(IsAvailable);
-            return prioritizedLetter ?? GetFirstAvailable();
+            // Note: We can't use "char?" directly because FirstOrDefault works with default(char) which is '\0' and not null.
+            char prioritizedLetter = prioritize.FirstOrDefault(IsAvailable);
+            return prioritizedLetter == default ? GetFirstAvailable() : prioritizedLetter;
         }
 
-        public static char? GetFirstAvailable() => GetDriveLetters(onlyIfAvailable: true).FirstOrDefault();
+        public static char? GetFirstAvailable()
+        {
+            // Note: We can't use "char?" directly because FirstOrDefault works with default(char) which is '\0' and not null.
+            char firstAvailableLetter = GetDriveLetters(onlyIfAvailable: true).FirstOrDefault();
+            return firstAvailableLetter == default ? null : firstAvailableLetter;
+        }
 
         public static IEnumerable<char> GetDriveLetters(bool onlyIfAvailable = false)
         {
