@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
-using static UPV.CLI.Connectors.CmdHelper;
+using UPV.CLI.Connectors.Helpers;
+using static UPV.CLI.Connectors.Helpers.CmdHelper;
 using static UPV.CLI.Connectors.Drive.DriveExceptions;
 
 namespace UPV.CLI.Connectors.Drive
@@ -134,7 +135,7 @@ namespace UPV.CLI.Connectors.Drive
             return StartProcess(netInfo);
         }
 
-        public void OnProcessConnected(ProcessEventArgs e)
+        public void OnProcessConnected(ProcessResult e)
         {
             if (e.Succeeded)
             {
@@ -175,7 +176,7 @@ namespace UPV.CLI.Connectors.Drive
 
         public Process Disconnect() => DriveConnectionHelper.Disconnect(ConnectedDriveLetter!, YesToAll);
 
-        public void OnProcessDisconnected(ProcessEventArgs e)
+        public void OnProcessDisconnected(ProcessResult e)
         {
             if (e.Succeeded)
             {

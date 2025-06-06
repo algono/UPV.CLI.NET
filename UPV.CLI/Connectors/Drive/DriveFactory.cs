@@ -1,5 +1,5 @@
-﻿using UPV.CLI.Connectors.VPN;
-using static UPV.CLI.Connectors.CmdHelper;
+﻿using UPV.CLI.Connectors.Helpers;
+using UPV.CLI.Connectors.VPN;
 using static UPV.CLI.Connectors.Drive.DriveExceptions;
 
 namespace UPV.CLI.Connectors.Drive
@@ -29,7 +29,7 @@ namespace UPV.CLI.Connectors.Drive
             return driveW;
         }
 
-        public static void CheckWDriveConnectionProcess(ProcessEventArgs e)
+        public static void CheckWDriveConnectionProcess(ProcessResult e)
         {
             if (!e.Succeeded && e.OutputOrErrorContains("1223"))
             {

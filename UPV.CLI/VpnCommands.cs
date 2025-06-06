@@ -1,5 +1,5 @@
 ﻿using Cocona;
-using UPV.CLI.Connectors;
+using UPV.CLI.Connectors.Helpers;
 using UPV.CLI.Connectors.VPN;
 
 namespace UPV.CLI

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
-using static UPV.CLI.Connectors.CmdHelper;
+using UPV.CLI.Connectors.Helpers;
+using static UPV.CLI.Connectors.Helpers.CmdHelper;
 using static UPV.CLI.Connectors.Drive.DriveExceptions;
 
 namespace UPV.CLI.Connectors.Drive
@@ -16,7 +17,7 @@ namespace UPV.CLI.Connectors.Drive
             return StartProcess(netInfo);
         }
 
-        public static void OnProcessDisconnected(string driveLetter, ProcessEventArgs e)
+        public static void OnProcessDisconnected(string driveLetter, ProcessResult e)
         {
             if (!e.Succeeded)
                 //Esa secuencia es parte de "(S/N)", con lo que deducimos que nos pide confirmación (porque tenemos archivos abiertos)

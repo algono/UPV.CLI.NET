@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 
-namespace UPV.CLI.Connectors
+namespace UPV.CLI.Connectors.Helpers
 {
-    public static partial class CmdHelper
+    public static class CmdHelper
     {
         public static ProcessStartInfo CreateProcessInfo(string fileName, string arguments = "")
         {
@@ -25,7 +25,7 @@ namespace UPV.CLI.Connectors
             return process;
         }
 
-        public static ProcessEventArgs WaitAndCheck(Process process)
+        public static ProcessResult WaitAndCheck(Process process)
         {
             string output = "", error = "";
             if (!process.StartInfo.UseShellExecute)
@@ -40,7 +40,7 @@ namespace UPV.CLI.Connectors
 
             process.Close();
 
-            return new ProcessEventArgs(succeeded, output, error);
+            return new ProcessResult(succeeded, output, error);
         }
 
         public static bool WaitCheckAndOutput(Process? process, string successFormat, string errorFormat, string nullMessage)
