@@ -1,12 +1,12 @@
-﻿using System.Text.RegularExpressions;
-using static UPV.CLI.Connectors.Drive.DriveExceptions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace UPV.CLI.Connectors.Drive
 {
     public static partial class DriveLetterTools
     {
-        internal const string InvalidLetterMessage = "The letter has to be an alphabetical letter (A-Z).";
-        internal const string InvalidDriveLetterMessage = "The drive letter has an invalid format. It should be a letter followed by a colon.";
+        public const string InvalidLetterMessage = "The letter has to be an alphabetical letter (A-Z).";
+        public const string InvalidDriveLetterMessage = "The drive letter has an invalid format. It should be a letter followed by a colon.";
 
         /// <exception cref="ArgumentOutOfRangeException">If the letter is not valid.</exception>
         public static bool IsAvailable(char letter)
@@ -28,21 +28,13 @@ namespace UPV.CLI.Connectors.Drive
             => GetDriveLetterRegex().IsMatch(driveLetter);
 
         /// <exception cref="ArgumentOutOfRangeException">If any of the prioritized letters is not valid.</exception>
-        public static char GetFirstAvailable(params char[] prioritize)
+        public static char? GetFirstAvailable(params char[] prioritize)
         {
-            char letter = prioritize.FirstOrDefault(IsAvailable);
-            
-            return letter == default ? GetFirstAvailable() : letter;
+            char? prioritizedLetter = prioritize.FirstOrDefault(IsAvailable);
+            return prioritizedLetter ?? GetFirstAvailable();
         }
 
-        public static char GetFirstAvailable()
-        {
-            char letter = GetDriveLetters(onlyIfAvailable: true).FirstOrDefault();
-            
-            if (letter == default) throw new NotAvailableDriveException();
-            
-            return letter;
-        }
+        public static char? GetFirstAvailable() => GetDriveLetters(onlyIfAvailable: true).FirstOrDefault();
 
         public static IEnumerable<char> GetDriveLetters(bool onlyIfAvailable = false)
         {
@@ -65,18 +57,43 @@ namespace UPV.CLI.Connectors.Drive
             {
                 throw new ArgumentOutOfRangeException(nameof(letter), letter, InvalidLetterMessage);
             }
-
         }
 
-        public static char FromDriveLetter(string driveLetter)
+        public static bool TryGetLetter(string driveLetter, [MaybeNullWhen(false)] out char? letter)
         {
-            if (IsValid(driveLetter))
+            if (driveLetter.Length == 0)
             {
-                return driveLetter[0];
+                letter = null;
+                return false;
+            }
+
+            var letterChar = driveLetter[0];
+            if (IsValid(letterChar))
+            {
+                letter = char.ToUpper(letterChar);
+                return true;
+            }
+
+            letter = null;
+            return false;
+        }
+
+        public static bool TryNormalizeDriveLetter(string driveLetter, [MaybeNullWhen(false)] out string normalizedDriveLetter)
+        {
+            if (driveLetter.Length == 1 && char.IsLetter(driveLetter[0]))
+            {
+                normalizedDriveLetter = ToDriveLetter(driveLetter[0]);
+                return true;
+            }
+            else if (IsValid(driveLetter))
+            {
+                normalizedDriveLetter = driveLetter;
+                return true;
             }
             else
             {
-                throw new ArgumentOutOfRangeException(nameof(driveLetter), driveLetter, InvalidDriveLetterMessage);
+                normalizedDriveLetter = null;
+                return false;
             }
         }
 

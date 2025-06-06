@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using UPV.CLI.Connectors.Drive.Errors;
 using UPV.CLI.Connectors.Helpers;
 using static UPV.CLI.Connectors.Helpers.CmdHelper;
-using static UPV.CLI.Connectors.Drive.DriveExceptions;
 
 namespace UPV.CLI.Connectors.Drive
 {
@@ -9,7 +9,7 @@ namespace UPV.CLI.Connectors.Drive
     {
         private readonly Func<string, DriveDomain, string>? _getAddress;
         private readonly string? _address;
-        public string? Address => _getAddress?.Invoke(Username, Domain) ?? _address;
+        public string Address => _getAddress?.Invoke(Username, Domain) ?? _address ?? throw new ArgumentNullException(nameof(Address));
         public DriveDomain Domain { get; set; }
 
         public string? ConnectedDriveLetter
@@ -101,8 +101,8 @@ namespace UPV.CLI.Connectors.Drive
             if (!DriveLetterTools.IsValid(Letter))
             {
                 letter = DefaultLetter == default
-                    ? DriveLetterTools.GetFirstAvailable()
-                    : DriveLetterTools.GetFirstAvailable(prioritize: DefaultLetter);
+                    ? DriveLetterTools.GetFirstAvailable() ?? default
+                    : DriveLetterTools.GetFirstAvailable(prioritize: DefaultLetter) ?? default;
 
                 letterWasAutoAssigned = true;
             }
@@ -126,18 +126,20 @@ namespace UPV.CLI.Connectors.Drive
             if (YesToAll) netInfo.Arguments += " /y";
         }
 
-        public Process Connect()
+        public DriveProcess Connect()
         {
             CheckArguments();
 
             var netInfo = DriveConnectionHelper.CreateNetProcessInfo();
             ApplyArguments(netInfo);
-            return StartProcess(netInfo);
+            var process = StartProcess(netInfo) ?? throw new InvalidOperationException("Failed to start the connection process.");
+
+            return new DriveProcess(process, Address, Letter);
         }
 
-        public void OnProcessConnected(ProcessResult e)
+        public DriveError? OnProcessConnected(DriveProcess process, ProcessResult result)
         {
-            if (e.Succeeded)
+            if (result.Succeeded)
             {
                 IsConnected = true;
             }
@@ -148,48 +150,24 @@ namespace UPV.CLI.Connectors.Drive
                 letterWasAutoAssigned = false;
             }
 
-            if (!e.Succeeded)
-            {
-                // 55 - Error del sistema "El recurso no se encuentra disponible" (es decir, la dirección no es valida).
-                if (e.OutputOrErrorContains("55"))
-                    throw new ArgumentOutOfRangeException(nameof(Address));
-
-                /**
-                * 86 - Error del sistema "La contraseña de red es incorrecta"
-                * 1326 - Error del sistema "El usuario o la contraseña son incorrectos"
-                * Cuando las credenciales son erróneas, da uno de estos dos errores de forma arbitraria.
-                * 
-                * Suponemos que en el primer caso el error fue de la contraseña y en el segundo del usuario,
-                * pero no lo sabemos con seguridad.
-                */
-
-                if (e.OutputOrErrorContains("86"))
-                    throw new ArgumentException(e.Error, nameof(Password));
-                if (e.OutputOrErrorContains("1326"))
-                    throw new ArgumentException(e.Error, nameof(Username));
-
-
-                if (e.OutputOrErrorContains("85"))
-                    throw new NotAvailableDriveException(Letter);
-            }
+            return DriveConnectionHelper.CheckDriveConnectionErrors(process, result);
         }
 
         public Process Disconnect() => DriveConnectionHelper.Disconnect(ConnectedDriveLetter!, YesToAll);
 
-        public void OnProcessDisconnected(ProcessResult e)
+        public void OnProcessDisconnected(ProcessResult result)
         {
-            if (e.Succeeded)
+            if (result.Succeeded)
             {
                 IsConnected = false;
             }
-
-            if (!e.Succeeded)
-                //Esa secuencia es parte de "(S/N)", con lo que deducimos que nos pide confirmación (porque tenemos archivos abiertos)
-                if (e.OutputOrErrorContains("/N)"))
-                    throw new OpenedFilesException(ForceDisconnect);
+            else
+            {
+                DriveConnectionHelper.CheckDriveDisconnectionErrors(ConnectedDriveLetter, result);
+            }
         }
 
-        private void ForceDisconnect()
+        public void ForceDisconnect()
         {
             bool oldYesToAll = YesToAll;
             YesToAll = true;
