@@ -9,7 +9,7 @@ namespace UPV.CLI
     public class DriveCommands
     {
         [Command("connect")]
-        public void Connect([Argument] string user, [Argument] UPVDomain domain, [Option] string? driveLetter)
+        public void Connect([Argument] string user, [Argument] UPVDomain domain, [Option] string? driveLetter, [Option] bool open = false)
         {
             char? letter = null;
             if (driveLetter is not null && !DriveLetterTools.TryGetLetter(driveLetter, out letter))
@@ -44,6 +44,11 @@ namespace UPV.CLI
                 if (error is null)
                 {
                     Console.WriteLine($"Successfully connected to {drive.Name} at {drive.ConnectedDriveLetter}");
+
+                    if (open)
+                    {
+                        drive.Open();
+                    }
                 }
                 else
                 {
