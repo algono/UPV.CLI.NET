@@ -9,27 +9,24 @@ namespace UPV.CLI
     public class DriveCommands
     {
         [Command("connect")]
-        public void Connect([Argument] string user, [Argument] string domain, [Option] string? driveLetter, [Option] bool open = false)
+        public int Connect([Argument] string user, [Argument] string domain, [Option] string? driveLetter, [Option] bool open = false)
         {
             if (!CommandsHelper.TryValidateAndParseEnum<UPVDomain>(domain, nameof(domain), out var enumDomain))
             {
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             char? letter = null;
             if (driveLetter is not null && !DriveLetterTools.TryGetLetter(driveLetter, out letter))
             {
                 Console.Error.WriteLine($"Invalid drive letter format: {driveLetter}. Please provide a valid drive letter (e.g., 'W:').");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             if (letter is not null && !DriveLetterTools.IsAvailable(letter.Value))
             {
                 Console.Error.WriteLine($"Drive letter not available: {letter}. Please choose a different one.");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             letter ??= DriveLetterTools.GetFirstAvailable(prioritize: DriveFactory.WDriveDefaultLetter);
@@ -37,8 +34,7 @@ namespace UPV.CLI
             if (letter is null)
             {
                 Console.Error.WriteLine("No available drive letters found. Please free up a drive letter and try again.");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             Console.WriteLine($"Connecting to UPV drive with username {user} and domain {domain} at letter {letter}:");
@@ -63,26 +59,25 @@ namespace UPV.CLI
                 {
                     Console.Error.WriteLine(error.GetErrorMessage(showFullError: false));
                     Debug.WriteLine($"Error connecting to drive: {error.GetErrorMessage(showFullError: true)}");
-                    Environment.Exit(1);
-                    return;
+                    return 1;
                 }
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"An unexpected error occurred while connecting to the drive:\n{ex.Message}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
 
         [Command("disconnect")]
-        public void Disconnect([Argument] string driveLetter = "W:", [Option] bool force = false)
+        public int Disconnect([Argument] string driveLetter = "W:", [Option] bool force = false)
         {
             if (!DriveLetterTools.TryNormalizeDriveLetter(driveLetter, out var normalizedDriveLetter))
             {
                 Console.Error.WriteLine($"Invalid drive letter format: {driveLetter}. Please provide a valid drive letter (e.g., 'W:').");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             Console.WriteLine($"Disconnecting drive at: {normalizedDriveLetter}");
@@ -97,16 +92,17 @@ namespace UPV.CLI
                 {
                     Console.Error.WriteLine(error.GetErrorMessage(showFullError: false));
                     Debug.WriteLine($"Error disconnecting from drive: {error.GetErrorMessage(showFullError: true)}");
-                    Environment.Exit(1);
-                    return;
+                    return 1;
                 }
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"An unexpected error occurred while disconnecting from the drive:\n{ex.Message}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            Console.WriteLine($"Successfully disconnected drive at: {normalizedDriveLetter}");
+            return 0;
         }
     }
 }

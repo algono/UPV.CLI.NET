@@ -9,7 +9,7 @@ namespace UPV.CLI
     public class VpnCommands
     {
         [Command("create")]
-        public void Create([Argument] string name, [Option(Description = "Automatically try to connect to the VPN after creating it")] bool connect = false)
+        public int Create([Argument] string name, [Option(Description = "Automatically try to connect to the VPN after creating it")] bool connect = false)
         {
             Console.WriteLine($"Creating VPN connection: {name}");
             var process = VPNHelper.Create(name);
@@ -17,8 +17,7 @@ namespace UPV.CLI
             if (process == null)
             {
                 Console.Error.WriteLine($"Failed to start creation process for VPN connection: {name}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             var result = CmdHelper.WaitAndCheck(process);
@@ -36,18 +35,19 @@ namespace UPV.CLI
             {
                 Console.Error.WriteLine($"Failed to add VPN connection: {name}");
                 Debug.WriteLine($"Failed to add VPN connection: {name}\n\nFull error:\n{result.Error}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
 
         [Command("delete")]
-        public void Delete([Argument] string name, [Option(Description = "Delete without asking for confirmation")] bool force = false)
+        public int Delete([Argument] string name, [Option(Description = "Delete without asking for confirmation")] bool force = false)
         {
             if (!(force || CommandsHelper.GetYesNoConfirmation($"Are you sure you want to delete the VPN connection '{name}'? This action cannot be undone.")))
             {
                 Console.WriteLine("Deletion cancelled.");
-                return;
+                return 0;
             }
 
             Console.WriteLine($"Deleting VPN connection: {name}");
@@ -56,8 +56,7 @@ namespace UPV.CLI
             if (process == null)
             {
                 Console.Error.WriteLine($"Failed to start deletion process for VPN connection: {name}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
 
             var result = CmdHelper.WaitAndCheck(process);
@@ -69,13 +68,14 @@ namespace UPV.CLI
             else
             {
                 Console.Error.WriteLine($"Failed to delete VPN connection: {name}\nError: {result.Error}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
 
         [Command("connect")]
-        public void Connect([Argument] string name)
+        public int Connect([Argument] string name)
         {
             Console.WriteLine($"Connecting to VPN: {name}");
             try
@@ -91,20 +91,20 @@ namespace UPV.CLI
                 else
                 {
                     Console.Error.WriteLine($"Failed to connect to VPN: {name}\nError: {result.Error}");
-                    Environment.Exit(1);
-                    return;
+                    return 1;
                 }
             }
             catch (InvalidOperationException ex)
             {
                 Console.Error.WriteLine($"Failed to start connection process for VPN: {name}\nError: {ex.Message}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
 
         [Command("disconnect")]
-        public void Disconnect([Argument] string name)
+        public int Disconnect([Argument] string name)
         {
             Console.WriteLine($"Disconnecting from VPN: {name}");
             try
@@ -120,20 +120,20 @@ namespace UPV.CLI
                 else
                 {
                     Console.Error.WriteLine($"Failed to disconnect from VPN: {name}\nError: {result.Error}");
-                    Environment.Exit(1);
-                    return;
+                    return 1;
                 }
             }
             catch (InvalidOperationException ex)
             {
                 Console.Error.WriteLine($"Failed to start disconnection process from VPN: {ex.Message}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
 
         [Command("check")]
-        public void Check()
+        public int Check()
         {
             //Console.WriteLine($"Checking if your IP is in the UPV network...");
             try
@@ -145,13 +145,14 @@ namespace UPV.CLI
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Error checking UPV network: {ex.Message}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
 
         [Command("list")]
-        public void List()
+        public int List()
         {
             try
             {
@@ -165,9 +166,10 @@ namespace UPV.CLI
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Error listing VPN connections: {ex.Message}");
-                Environment.Exit(1);
-                return;
+                return 1;
             }
+
+            return 0;
         }
     }
 }
