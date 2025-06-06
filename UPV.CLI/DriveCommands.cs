@@ -9,7 +9,7 @@ namespace UPV.CLI
     public class DriveCommands
     {
         [Command("connect")]
-        public int Connect([Argument] string user, [Argument] string domain, [Option] string? driveLetter, [Option] bool open = false)
+        public int Connect([Argument] string user, [Argument] string domain, [Option('l')] string? driveLetter, [Option('o')] bool open = false)
         {
             if (!CommandsHelper.TryValidateAndParseEnum<UPVDomain>(domain, nameof(domain), out var enumDomain))
             {
@@ -72,7 +72,7 @@ namespace UPV.CLI
         }
 
         [Command("disconnect")]
-        public int Disconnect([Argument] string driveLetter = "W:", [Option] bool force = false)
+        public int Disconnect([Argument] string driveLetter = "W:", [Option('f')] bool force = false)
         {
             if (!DriveLetterTools.TryNormalizeDriveLetter(driveLetter, out var normalizedDriveLetter))
             {

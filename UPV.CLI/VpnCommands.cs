@@ -9,7 +9,7 @@ namespace UPV.CLI
     public class VpnCommands
     {
         [Command("create")]
-        public int Create([Argument] string name, [Option(Description = "Automatically try to connect to the VPN after creating it")] bool connect = false)
+        public int Create([Argument] string name, [Option('c', Description = "Automatically try to connect to the VPN after creating it")] bool connect = false)
         {
             Console.WriteLine($"Creating VPN connection: {name}");
             var process = VPNHelper.Create(name);
@@ -42,7 +42,7 @@ namespace UPV.CLI
         }
 
         [Command("delete")]
-        public int Delete([Argument] string name, [Option(Description = "Delete without asking for confirmation")] bool force = false)
+        public int Delete([Argument] string name, [Option('f', Description = "Delete without asking for confirmation")] bool force = false)
         {
             if (!(force || CommandsHelper.GetYesNoConfirmation($"Are you sure you want to delete the VPN connection '{name}'? This action cannot be undone.")))
             {
