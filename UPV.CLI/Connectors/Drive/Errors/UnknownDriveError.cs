@@ -7,7 +7,7 @@
         /// </summary>
         public override string? Code => null; // No specific error code for this error
 
-        public const string DefaultMessageFormat = "An unknown error occurred while disconnecting the drive. (Error code: {1})\n\nFull error:\n{0}";
+        public const string DefaultMessageFormat = "An unknown error occurred while disconnecting the drive (error code: {1}).";
 
         public UnknownDriveError(string errorMessage) : base(errorMessage, null)
         {

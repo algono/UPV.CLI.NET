@@ -15,8 +15,7 @@
         public override string Code => ErrorCode;
 
         public const string DefaultMessageFormat = "There was a credentials error.\n\n"
-            + "You must re-establish your connection to UPV manually (either VPN or Wi-Fi).\n\n"
-            + "Full error:\n{0}";
+            + "You must re-establish your connection to UPV manually (either VPN or Wi-Fi).";
 
         //public const string ErrorMessageSpanish = "Ha habido un error de credenciales.\n\n"
         //    + "Debe reestablecer su conexión a la UPV manualmente (VPN o WiFi).";

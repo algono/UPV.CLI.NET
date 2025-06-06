@@ -1,4 +1,5 @@
 ﻿using Cocona;
+using System.Diagnostics;
 using UPV.CLI.Connectors.Drive;
 using UPV.CLI.Connectors.Helpers;
 
@@ -46,7 +47,8 @@ namespace UPV.CLI
                 }
                 else
                 {
-                    Console.Error.WriteLine(error.GetErrorMessage());
+                    Console.Error.WriteLine(error.GetErrorMessage(showFullError: false));
+                    Debug.WriteLine($"Error connecting to drive: {error.GetErrorMessage(showFullError: true)}");
                     return;
                 }
             }
@@ -75,7 +77,8 @@ namespace UPV.CLI
 
                 if (error is not null)
                 {
-                    Console.Error.WriteLine(error.GetErrorMessage());
+                    Console.Error.WriteLine(error.GetErrorMessage(showFullError: false));
+                    Debug.WriteLine($"Error disconnecting from drive: {error.GetErrorMessage(showFullError: true)}");
                     return;
                 }
             }

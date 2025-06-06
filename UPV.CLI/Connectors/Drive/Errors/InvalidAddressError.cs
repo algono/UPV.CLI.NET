@@ -10,13 +10,13 @@
 
         public string Address { get; }
 
-        public const string DefaultMessageFormat = "Invalid address. Make sure your username and domain are correct (error code: {1}).\nAddress: {2}\n\nFull error:\n{0}";
+        public const string DefaultMessageFormat = "Invalid address. Make sure your username and domain are correct (error code: {1}).\nAddress: {2}";
 
         public InvalidAddressError(string address, string errorMessage) : base(errorMessage, DefaultMessageFormat)
         {
             Address = address;
         }
 
-        protected override string GetFormattedMessage() => string.Format(MessageFormat!, Message, Code, Address);
+        protected override string GetFormattedMessage(bool showFullError) => string.Format(GetMessageFormat(showFullError), Message, Code, Address);
     }
 }

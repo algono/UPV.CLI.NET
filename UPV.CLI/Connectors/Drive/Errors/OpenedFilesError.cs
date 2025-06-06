@@ -16,13 +16,13 @@
         //    "Existen archivos abiertos y/o búsquedas incompletas de directorios pendientes en el disco. Si no los cierra antes de desconectarse, podría perder datos.\n\n"
         //    + "¿Desea continuar la desconexión y forzar el cierre?";
 
-        public const string DefaultMessageFormat = "There are open files and/or pending directory searches on the drive ({1}). If you disconnect without closing them, you may lose data.\nRun this again with the --force option to disconnect the drive anyways, accepting that information could be lost.\n\nFull error:\n{0}";
+        public const string DefaultMessageFormat = "There are open files and/or pending directory searches on the drive ({1}). If you disconnect without closing them, you may lose data.\nRun this again with the --force option to disconnect the drive anyways, accepting that information could be lost.";
 
         public OpenedFilesError(string? driveLetter, string errorMessage) : base(errorMessage, DefaultMessageFormat)
         {
             DriveLetter = driveLetter;
         }
 
-        protected override string GetFormattedMessage() => string.Format(MessageFormat!, Message, DriveLetter ?? "Unknown");
+        protected override string GetFormattedMessage(bool showFullError) => string.Format(GetMessageFormat(showFullError), Message, DriveLetter ?? "Unknown");
     }
 }

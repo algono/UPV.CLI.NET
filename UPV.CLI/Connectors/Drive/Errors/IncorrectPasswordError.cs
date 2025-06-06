@@ -8,7 +8,7 @@
         public const string ErrorCode = "86";
         public override string Code => ErrorCode;
         
-        public const string DefaultMessageFormat = "The network password is incorrect (error code: {1}).\n\nFull error:\n{0}";
+        public const string DefaultMessageFormat = "The network password is incorrect (error code: {1}).";
         
         public IncorrectPasswordError(string errorMessage) : base(errorMessage, DefaultMessageFormat)
         {

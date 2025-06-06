@@ -8,7 +8,7 @@
         public const string ErrorCode = "1326";
         public override string Code => ErrorCode;
         
-        public const string DefaultMessageFormat = "The username or password is incorrect (error code: {1}).\n\nFull error:\n{0}";
+        public const string DefaultMessageFormat = "The username or password is incorrect (error code: {1}).";
         
         public IncorrectUserNameOrPasswordError(string errorMessage) : base(errorMessage, DefaultMessageFormat)
         {
