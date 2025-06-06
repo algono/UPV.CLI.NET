@@ -67,6 +67,12 @@ namespace UPV.CLI.Connectors.Drive
                 return false;
             }
 
+            if (!IsValid(driveLetter))
+            {
+                letter = null;
+                return false;
+            }
+
             var letterChar = driveLetter[0];
             if (IsValid(letterChar))
             {
