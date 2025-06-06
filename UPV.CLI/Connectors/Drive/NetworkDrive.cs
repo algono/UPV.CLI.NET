@@ -87,7 +87,7 @@ namespace UPV.CLI.Connectors.Drive
 
         public void Open()
         {
-            if (IsConnected) Process.Start(ConnectedDriveLetter!);
+            if (IsConnected) Process.Start("explorer.exe", ConnectedDriveLetter!);
             else throw new InvalidOperationException("El disco debe estar conectado para poder abrirlo");
         }
 
