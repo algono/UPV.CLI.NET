@@ -44,18 +44,18 @@ namespace UPV.CLI.Connectors.VPN
             return VPNPowerShell.Delete(name);
         }
 
-        public static Process? Connect(string name)
+        public static Process Connect(string name)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             var connectionInfo = GetConnectionInfo($"-d \"{name}\"");
-            return Process.Start(connectionInfo);
+            return Process.Start(connectionInfo) ?? throw new InvalidOperationException($"Error trying to connect to VPN {name}");
         }
 
-        public static Process? Disconnect(string name)
+        public static Process Disconnect(string name)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             var disconnectionInfo = GetDisconnectionInfo($"\"{name}\" /DISCONNECT");
-            return Process.Start(disconnectionInfo);
+            return Process.Start(disconnectionInfo) ?? throw new InvalidOperationException($"Error trying to disconnect from VPN {name}");
         }
 
         public static IEnumerable<string> List()
