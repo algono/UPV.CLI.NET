@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UPV.CLI
+﻿namespace UPV.CLI
 {
     public static class CommandsHelper
     {
@@ -15,6 +9,22 @@ namespace UPV.CLI
             var input = Console.ReadLine()?.Trim().ToLowerInvariant();
 
             return input == "y" || input == "yes";
+        }
+
+
+        // Helper method for domain validation
+        public static bool TryValidateAndParseEnum<TEnum>(string stringValue, string parameterName, out TEnum parsedValue) where TEnum : struct, Enum
+        {
+            if (Enum.TryParse<TEnum>(stringValue, true, out parsedValue))
+            {
+                return true;
+            }
+
+            var validValues = Enum.GetNames<TEnum>();
+            var validValuesString = string.Join("', '", validValues);
+
+            Console.Error.WriteLine($"Error: Argument '{parameterName}' can only be one of the following: '{validValuesString}'. '{stringValue}' is not a valid value.");
+            return false;
         }
     }
 }

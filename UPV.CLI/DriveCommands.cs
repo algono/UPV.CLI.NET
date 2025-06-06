@@ -9,8 +9,14 @@ namespace UPV.CLI
     public class DriveCommands
     {
         [Command("connect")]
-        public void Connect([Argument] string user, [Argument] UPVDomain domain, [Option] string? driveLetter, [Option] bool open = false)
+        public void Connect([Argument] string user, [Argument] string domain, [Option] string? driveLetter, [Option] bool open = false)
         {
+            if (!CommandsHelper.TryValidateAndParseEnum<UPVDomain>(domain, nameof(domain), out var enumDomain))
+            {
+                Environment.Exit(1);
+                return;
+            }
+
             char? letter = null;
             if (driveLetter is not null && !DriveLetterTools.TryGetLetter(driveLetter, out letter))
             {
@@ -39,7 +45,7 @@ namespace UPV.CLI
 
             try
             {
-                var drive = DriveFactory.GetDriveW(user: user, domain: domain, letter.Value);
+                var drive = DriveFactory.GetDriveW(user: user, domain: enumDomain, letter.Value);
                 var process = drive.Connect();
                 var result = CmdHelper.WaitAndCheck(process.Process);
                 var error = drive.OnProcessConnected(process, result);
